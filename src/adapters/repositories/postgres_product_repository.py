@@ -1,3 +1,4 @@
+import uuid
 from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import create_engine
@@ -23,6 +24,7 @@ class PostgresDBProductRepository(IProductRepository):
 
     def to_entity(self, product: Products) -> Product:
         product = product_factory(
+            product.product_id,
             product.name,
             product.description,
             product.category,
@@ -31,9 +33,9 @@ class PostgresDBProductRepository(IProductRepository):
         )
         return product
 
-    def get_by_id(self, id: int) -> Optional[Product]:
+    def get_by_id(self, product_id: uuid.UUID) -> Optional[Product]:
         with SessionLocal() as db:
-            result = db.query(self.model).filter(self.model.id == id).first()
+            result = db.query(self.model).filter(self.model.product_id == product_id).first()
         product = self.to_entity(result)
         return product
 
@@ -72,7 +74,7 @@ class PostgresDBProductRepository(IProductRepository):
     def update(self, obj_in: Product) -> Product:
         product_in = vars(obj_in)
         with SessionLocal() as db:
-            db_obj = db.query(self.model).filter(self.model.id == obj_in.id).first()
+            db_obj = db.query(self.model).filter(self.model.product_id == obj_in.product_id).first()
             obj_data = jsonable_encoder(db_obj, by_alias=False)
             for field in obj_data:
                 if field in product_in:
@@ -83,8 +85,8 @@ class PostgresDBProductRepository(IProductRepository):
         updated_product = self.to_entity(db_obj)
         return updated_product
 
-    def remove(self, id: int) -> None:
+    def remove(self, product_id: uuid.UUID) -> None:
         with SessionLocal() as db:
-            db_obj = db.query(self.model).filter(self.model.id == id).first()
+            db_obj = db.query(self.model).filter(self.model.product_id == product_id).first()
             db.delete(db_obj)
             db.commit()

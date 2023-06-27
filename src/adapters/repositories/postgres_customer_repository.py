@@ -1,3 +1,4 @@
+import uuid
 from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import create_engine
@@ -23,6 +24,7 @@ class PostgresDBCustomerRepository(ICustomerRepository):
 
     def to_entity(self, customer: Customers) -> Customer:
         customer = customer_factory(
+            customer.customer_id,
             customer.cpf,
             customer.first_name,
             customer.last_name,
@@ -31,7 +33,13 @@ class PostgresDBCustomerRepository(ICustomerRepository):
         )
         return customer
 
-    def get(self, cpf: str) -> Optional[Customer]:
+    def get_by_id(self, customer_id: uuid.UUID) -> Optional[Customer]:
+        with SessionLocal() as db:
+            result = db.query(self.model).filter(self.model.customer_id == customer_id).first()
+        customer = self.to_entity(result)
+        return customer
+
+    def get_by_cpf(self, cpf: str) -> Optional[Customer]:
         with SessionLocal() as db:
             result = db.query(self.model).filter(self.model.cpf == cpf).first()
         customer = self.to_entity(result)
@@ -59,10 +67,10 @@ class PostgresDBCustomerRepository(ICustomerRepository):
         new_customer = self.to_entity(db_obj)
         return new_customer
 
-    def update(self, obj_in: Customer) -> Customer:
+    def update(self, customer_id: uuid.UUID, obj_in: Customer) -> Customer:
         customer_in = vars(obj_in)
         with SessionLocal() as db:
-            db_obj = db.query(self.model).filter(self.model.cpf == obj_in.cpf).first()
+            db_obj = db.query(self.model).filter(self.model.customer_id == customer_id).first()
             obj_data = jsonable_encoder(db_obj, by_alias=False)
             for field in obj_data:
                 if field in customer_in:
@@ -73,8 +81,8 @@ class PostgresDBCustomerRepository(ICustomerRepository):
         updated_customer = self.to_entity(db_obj)
         return updated_customer
 
-    def remove(self, cpf: str) -> None:
+    def remove(self, customer_id: uuid.UUID) -> None:
         with SessionLocal() as db:
-            db_obj = db.query(self.model).filter(self.model.cpf == cpf).first()
+            db_obj = db.query(self.model).filter(self.model.customer_id == customer_id).first()
             db.delete(db_obj)
             db.commit()

@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, status
 from kink import di
 
@@ -6,6 +8,8 @@ from src.adapters.services.product_service import ProductService
 from src.domain.model.product_schemas import (
     ChangeProductDTO,
     CreateProductDTO,
+    ProductDTOListResponse,
+    ProductDTOResponse,
 )
 
 router = APIRouter(tags=["Products"])
@@ -13,7 +17,7 @@ router = APIRouter(tags=["Products"])
 
 @router.get(
     "/products",
-    # response_model=ProductDTO,
+    response_model=ProductDTOListResponse,
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
@@ -27,8 +31,8 @@ async def get_all_products(
 
 
 @router.get(
-    "/products/{product_category}",
-    # response_model=ProductDTO,
+    "/products/category/{product_category}",
+    response_model=ProductDTOResponse,
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
@@ -43,24 +47,24 @@ async def get_all_products_by_category(
 
 
 @router.get(
-    "/products/{product_id}",
-    # response_model=ProductDTO,
+    "/products/id/{product_id}",
+    response_model=ProductDTOResponse,
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
                500: {"model": APIErrorMessage}}
 )
 async def get_product_by_id(
-    product_id: int,
+    product_id: uuid.UUID,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    result = service.get(product_id)
+    result = service.get_by_id(product_id)
     return {"result": result}
 
 
 @router.post(
     "/products",
-    # response_model=ProductDTO,
+    response_model=ProductDTOResponse,
     status_code=status.HTTP_201_CREATED,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
@@ -76,14 +80,14 @@ async def create_product(
 
 @router.put(
     "/products/{product_id}",
-    # response_model=ProductDTO,
+    response_model=ProductDTOResponse,
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
                500: {"model": APIErrorMessage}}
 )
 async def change_product_data(
-    product_id: int,
+    product_id: uuid.UUID,
     request: ChangeProductDTO,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
@@ -100,7 +104,7 @@ async def change_product_data(
                500: {"model": APIErrorMessage}}
 )
 async def remove_product(
-    product_id: int,
+    product_id: uuid.UUID,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
     service.remove(product_id)

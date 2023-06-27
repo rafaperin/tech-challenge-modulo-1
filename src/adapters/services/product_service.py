@@ -1,3 +1,5 @@
+import uuid
+
 from kink import inject
 
 from src.domain.model.product_schemas import (
@@ -14,9 +16,10 @@ class ProductService(ProductServiceInterface):
     def __init__(self, product_repo: IProductRepository) -> None:
         self._product_repo = product_repo
 
-    def get_by_id(self, id: int):
-        result = self._product_repo.get_by_id(id)
+    def get_by_id(self, product_id: uuid.UUID):
+        result = self._product_repo.get_by_id(product_id)
         product = product_factory(
+            result.product_id,
             result.name,
             result.description,
             result.category,
@@ -30,6 +33,7 @@ class ProductService(ProductServiceInterface):
         products = []
         for obj in result:
             product = product_factory(
+                obj.product_id,
                 obj.name,
                 obj.description,
                 obj.category,
@@ -44,6 +48,7 @@ class ProductService(ProductServiceInterface):
         products = []
         for obj in result:
             product = product_factory(
+                obj.product_id,
                 obj.name,
                 obj.description,
                 obj.category,
@@ -64,10 +69,14 @@ class ProductService(ProductServiceInterface):
         self._product_repo.create(product)
         return product
 
-    def update(self, id: int, input_dto: ChangeProductDTO) -> Product:
-        product = self._product_repo.get_by_id(id)
-        if input_dto.name or input_dto.description or input_dto.category:
-            product.change_product_data(input_dto.name, input_dto.description, input_dto.category)
+    def update(self, product_id: uuid.UUID, input_dto: ChangeProductDTO) -> Product:
+        product = self._product_repo.get_by_id(product_id)
+        if input_dto.name:
+            product.change_product_name(input_dto.name)
+        if input_dto.description:
+            product.change_product_description(input_dto.description)
+        if input_dto.category:
+            product.change_product_category(input_dto.category)
         if input_dto.price:
             product.change_price(input_dto.price)
         if input_dto.image_url:
@@ -76,5 +85,5 @@ class ProductService(ProductServiceInterface):
         updated_product = self._product_repo.update(product)
         return updated_product
 
-    def remove(self, id: int) -> None:
-        self._product_repo.remove(id)
+    def remove(self, product_id: uuid.UUID) -> None:
+        self._product_repo.remove(product_id)
