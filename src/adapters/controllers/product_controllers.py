@@ -32,7 +32,7 @@ async def get_all_products(
 
 @router.get(
     "/products/category/{product_category}",
-    response_model=ProductDTOResponse,
+    response_model=ProductDTOListResponse,
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
@@ -97,7 +97,6 @@ async def change_product_data(
 
 @router.delete(
     "/products/{product_id}",
-    # response_model=ProductDTO,
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
