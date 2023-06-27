@@ -8,9 +8,11 @@ from fastapi.responses import JSONResponse
 
 from src.config.errors import APIErrorMessage, DomainError, RepositoryError, ResourceNotFound
 from src.adapters.controllers.customer_controllers import router as customers_router
+from src.adapters.controllers.product_controllers import router as products_router
 
 app = FastAPI()
 app.include_router(customers_router)
+app.include_router(products_router)
 
 
 @app.exception_handler(DomainError)
@@ -44,9 +46,9 @@ def custom_openapi() -> Dict[str, Any]:
         return app.openapi_schema  # type: ignore
 
     openapi_schema = get_openapi(
-        title="hexagonal-architecture-python",
+        title="Tech Challenge - Módulo 1",
         version="1.0.0",
-        description="Hexagonal architecture in Python build on top of FastAPI",
+        description="API para lanchonete do Tech Challenge",
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema
