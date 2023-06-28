@@ -25,6 +25,6 @@ create table if not exists orders (
 
 create table if not exists order_items (
 	order_id uuid not null,
-	product_id not null,
+	product_id uuid not null,
 	product_quantity integer not null
 );

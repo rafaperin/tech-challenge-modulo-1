@@ -36,8 +36,7 @@ services:
     networks:
       - tech-challenge-network
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
 
 networks:
   tech-challenge-network:
