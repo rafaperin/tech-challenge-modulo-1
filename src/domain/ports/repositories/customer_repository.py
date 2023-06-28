@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -6,7 +7,11 @@ from src.domain.model.customer_model import Customer
 
 class ICustomerRepository(ABC):
     @abstractmethod
-    def get(self, cpf: str) -> Customer:
+    def get_by_id(self, customer_id: uuid.UUID) -> Customer:
+        pass
+
+    @abstractmethod
+    def get_by_cpf(self, cpf: str) -> Customer:
         pass
 
     @abstractmethod
@@ -18,9 +23,9 @@ class ICustomerRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, customer_in: Customer) -> Customer:
+    def update(self, customer_id: uuid.UUID, customer_in: Customer) -> Customer:
         pass
 
     @abstractmethod
-    def remove(self, cpf: str) -> None:
+    def remove(self, customer_id: uuid.UUID) -> None:
         pass

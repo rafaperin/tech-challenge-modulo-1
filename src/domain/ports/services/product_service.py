@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC
 
 from src.domain.model.product_schemas import CreateProductDTO, ChangeProductDTO
@@ -9,7 +10,7 @@ class ProductServiceInterface(ABC):
     def __init__(self, product_repo: IProductRepository) -> None:
         raise NotImplementedError
 
-    def get_by_id(self, id: str):
+    def get_by_id(self, product_id: uuid.UUID):
         pass
 
     def get_all(self):
@@ -21,9 +22,9 @@ class ProductServiceInterface(ABC):
     def create(self, input_dto: CreateProductDTO) -> Product:
         pass
 
-    def update(self, id: int, input_dto: ChangeProductDTO) -> Product:
+    def update(self, product_id: uuid.UUID, input_dto: ChangeProductDTO) -> Product:
         pass
 
-    def remove(self, id: int) -> None:
+    def remove(self, product_id: uuid.UUID) -> None:
         pass
 

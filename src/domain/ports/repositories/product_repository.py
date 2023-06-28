@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -6,7 +7,7 @@ from src.domain.model.product_model import Product
 
 class IProductRepository(ABC):
     @abstractmethod
-    def get_by_id(self, id: int) -> Product:
+    def get_by_id(self, product_id: uuid.UUID) -> Product:
         pass
 
     @abstractmethod
@@ -26,5 +27,5 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    def remove(self, id: int) -> None:
+    def remove(self, product_id: uuid.UUID) -> None:
         pass

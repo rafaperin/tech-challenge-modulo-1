@@ -1,8 +1,20 @@
+import uuid
 from dataclasses import dataclass
+from enum import Enum
+
+from src.domain.model.errors import ProductError
+
+
+class Category(Enum):
+    SANDWICH = "Lanche"
+    ACCOMPANIMENT = "Acompanhamento"
+    BEVERAGE = "Bebida"
+    DESSERT = "Sobremesa"
 
 
 @dataclass
 class Product:
+    product_id: uuid.UUID
     name: str
     description: str
     category: str
@@ -11,11 +23,27 @@ class Product:
 
     @classmethod
     def create(cls, name: str, description: str, category: str, price: float, image_url: str) -> "Product":
-        return cls(name, description, category, price, image_url)
+        if not name:
+            raise ProductError("Product name is required")
+        if not description:
+            raise ProductError("Product description is required")
+        if not category:
+            raise ProductError("Product category is required")
+        if not price:
+            raise ProductError("Product price is required")
 
-    def change_product_data(self, new_name: str, new_description: str, new_category: str) -> None:
+        if category not in [c.value for c in Category]:
+            raise ProductError("Product category is invalid")
+
+        return cls(uuid.uuid4(), name, description, category, price, image_url)
+
+    def change_product_name(self, new_name: str) -> None:
         self.name = new_name
+
+    def change_product_description(self, new_description: str) -> None:
         self.description = new_description
+
+    def change_product_category(self, new_category: str) -> None:
         self.category = new_category
 
     def change_price(self, new_price: float) -> None:
@@ -25,8 +53,16 @@ class Product:
         self.image_url = new_image_url
 
 
-def product_factory(name: str, description: str, category: str, price: float, image_url: str) -> Product:
+def product_factory(
+    product_id: uuid.UUID,
+    name: str,
+    description: str,
+    category: str,
+    price: float,
+    image_url: str
+) -> Product:
     return Product(
+        product_id=product_id,
         name=name,
         description=description,
         category=category,

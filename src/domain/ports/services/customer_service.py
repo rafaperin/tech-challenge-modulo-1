@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC
 
 from src.domain.model.customer_schemas import CreateCustomerDTO, ChangeCustomerDTO
@@ -9,7 +10,10 @@ class CustomerServiceInterface(ABC):
     def __init__(self, customer_repo: ICustomerRepository) -> None:
         raise NotImplementedError
 
-    def get(self, cpf: str):
+    def get_by_id(self, customer_id: uuid.UUID):
+        pass
+
+    def get_by_cpf(self, cpf: str):
         pass
 
     def get_all(self):
@@ -18,9 +22,9 @@ class CustomerServiceInterface(ABC):
     def create(self, input_dto: CreateCustomerDTO) -> Customer:
         pass
 
-    def update(self, cpf: str, input_dto: ChangeCustomerDTO) -> Customer:
+    def update(self, customer_id: uuid.UUID, input_dto: ChangeCustomerDTO) -> Customer:
         pass
 
-    def remove(self, cpf: str) -> None:
+    def remove(self, customer_id: uuid.UUID) -> None:
         pass
 

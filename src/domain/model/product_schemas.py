@@ -1,6 +1,28 @@
-from typing import Optional
+import uuid
+from typing import Optional, List
 
 from pydantic import BaseModel, EmailStr
+
+
+class ProductDTO(BaseModel):
+    product_id: uuid.UUID
+    name: str
+    description: Optional[str]
+    category: str
+    price: float
+    image_url: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "product_id": "00000000-0000-0000-0000-000000000000",
+                "name": "Lanche 1",
+                "description": "Lanche daora",
+                "category": "Lanche",
+                "price": "9.99",
+                "image_url": "https://blog.letskuk.com.br/lanches-gourmet"
+            }
+        }
 
 
 class CreateProductDTO(BaseModel):
@@ -16,20 +38,16 @@ class CreateProductDTO(BaseModel):
                 "name": "Lanche 1",
                 "description": "Lanche daora",
                 "category": "Lanche",
-                "price": "9,99",
+                "price": "9.99",
                 "image_url": "https://blog.letskuk.com.br/lanches-gourmet"
             }
         }
 
 
-def create_product_factory(name: str, description: str, category: str, price: str, image_url: str) -> CreateProductDTO:
-    return CreateProductDTO(name=name, description=description, category=category, price=price, image_url=image_url)
-
-
 class ChangeProductDTO(BaseModel):
     name: Optional[str]
     description: Optional[str]
-    category: Optional[EmailStr]
+    category: Optional[str]
     price: Optional[float]
     image_url: Optional[str]
 
@@ -39,11 +57,15 @@ class ChangeProductDTO(BaseModel):
                 "name": "Lanche 1",
                 "description": "Lanche daora",
                 "category": "Lanche",
-                "price": "9,99",
+                "price": "9.99",
                 "image_url": "https://blog.letskuk.com.br/lanches-gourmet"
             }
         }
 
 
-def change_product_factory(first_name: str, last_name: str, email: str, phone: str) -> ChangeProductDTO:
-    return ChangeProductDTO(first_name=first_name, last_name=last_name, email=email, phone=phone)
+class ProductDTOResponse(BaseModel):
+    result: ProductDTO
+
+
+class ProductDTOListResponse(BaseModel):
+    result: List[ProductDTO]
