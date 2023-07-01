@@ -1,12 +1,11 @@
 import uuid
-from typing import Any
 
 from fastapi import APIRouter, Depends, status
 from kink import di
 
 from src.config.errors import APIErrorMessage
 from src.adapters.services.customer_service import CustomerService
-from src.domain.model.customer_schemas import (
+from src.domain.model.customer.customer_schemas import (
     ChangeCustomerDTO, CreateCustomerDTO, CustomerDTOResponse, CustomerDTOListResponse,
 )
 

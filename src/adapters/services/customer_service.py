@@ -2,11 +2,11 @@ import uuid
 
 from kink import inject
 
-from src.domain.model.customer_schemas import (
+from src.domain.model.customer.customer_schemas import (
     ChangeCustomerDTO,
     CreateCustomerDTO,
 )
-from src.domain.model.customer_model import Customer, customer_factory
+from src.domain.model.customer.customer_model import Customer, customer_factory
 from src.domain.ports.repositories.customer_repository import ICustomerRepository
 from src.domain.ports.services.customer_service import CustomerServiceInterface
 

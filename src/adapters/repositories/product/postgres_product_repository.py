@@ -5,8 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.config.config import settings
-from src.adapters.repositories.product_orm import Products
-from src.domain.model.product_model import Product, product_factory
+from src.adapters.repositories.product.product_orm import Products
+from src.domain.model.product.product_model import Product, product_factory
 from src.domain.ports.repositories.product_repository import IProductRepository
 
 connection_uri = settings.db.SQLALCHEMY_DATABASE_URI

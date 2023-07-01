@@ -2,11 +2,11 @@ import uuid
 
 from kink import inject
 
-from src.domain.model.product_schemas import (
+from src.domain.model.product.product_schemas import (
     ChangeProductDTO,
     CreateProductDTO,
 )
-from src.domain.model.product_model import Product, product_factory
+from src.domain.model.product.product_model import Product, product_factory
 from src.domain.ports.repositories.product_repository import IProductRepository
 from src.domain.ports.services.product_service import ProductServiceInterface
 

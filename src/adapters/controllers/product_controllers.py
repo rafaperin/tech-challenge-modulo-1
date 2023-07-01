@@ -5,7 +5,7 @@ from kink import di
 
 from src.config.errors import APIErrorMessage
 from src.adapters.services.product_service import ProductService
-from src.domain.model.product_schemas import (
+from src.domain.model.product.product_schemas import (
     ChangeProductDTO,
     CreateProductDTO,
     ProductDTOListResponse,

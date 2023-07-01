@@ -9,10 +9,12 @@ from fastapi.responses import JSONResponse
 from src.config.errors import APIErrorMessage, DomainError, RepositoryError, ResourceNotFound
 from src.adapters.controllers.customer_controllers import router as customers_router
 from src.adapters.controllers.product_controllers import router as products_router
+from src.adapters.controllers.order_controllers import router as orders_router
 
 app = FastAPI()
 app.include_router(customers_router)
 app.include_router(products_router)
+app.include_router(orders_router)
 
 
 @app.exception_handler(DomainError)
