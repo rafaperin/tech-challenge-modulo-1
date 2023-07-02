@@ -1,14 +1,13 @@
 import uuid
-from typing import List, Optional, Union
+from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from src.adapters.repositories.order_items.order_item_orm import Order_Items
 from src.config.config import settings
-from src.adapters.repositories.order.order_orm import Orders
+from src.adapters.repositories.order.order_orm import Orders, Order_Items
 from src.domain.model.order.order_model import Order, order_factory
-from src.domain.model.order_items.order_item_model import OrderItem, order_item_factory
+from src.domain.model.order.order_item_model import OrderItem, order_item_factory
 from src.domain.ports.repositories.order_repository import IOrderRepository
 
 connection_uri = settings.db.SQLALCHEMY_DATABASE_URI
@@ -24,6 +23,9 @@ class PostgresDBOrderRepository(IOrderRepository):
     def __init__(self, model: Orders, items_model: Order_Items):
         self.model = model
         self.items_model = items_model
+
+    def item_to_entity(self, order_item: Order_Items) -> OrderItem:
+        return order_item_factory(order_item.order_id, order_item.product_id, order_item.product_quantity)
 
     def items_to_entity(self, order_items: List[Order_Items]) -> List[OrderItem]:
         items = []
@@ -54,6 +56,14 @@ class PostgresDBOrderRepository(IOrderRepository):
         items = self.items_to_entity(items_db)
         result = self.order_to_entity(order_db, items)
         return result
+
+    def get_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> OrderItem:
+        with SessionLocal() as db:
+            item_db = db.query(self.items_model)\
+                .filter(self.items_model.order_id == order_id and
+                        self.items_model.product_id == product_id).first()
+
+            return self.item_to_entity(item_db)
 
     def get_all(self) -> List[Order]:
         result = []

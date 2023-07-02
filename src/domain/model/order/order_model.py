@@ -3,7 +3,8 @@ import uuid
 from dataclasses import dataclass
 from typing import List
 
-from src.domain.model.order_items.order_item_model import OrderItem
+from src.domain.model.errors import OrderError, OrderItemError
+from src.domain.model.order.order_item_model import OrderItem
 
 
 class OrderStatus:
@@ -30,14 +31,14 @@ class Order:
 
     def add_order_item(self, order_item: OrderItem, product_price: float) -> None:
         if self.status != OrderStatus.PENDING:
-            raise Exception("Order already confirmed, you can't add items to it!")
+            raise OrderError("Order already confirmed, you can't add items to it!")
 
         self.order_items.append(order_item)
         self.order_total = self.order_total + (order_item.product_quantity * product_price)
 
     def update_item_quantity(self, order_item: OrderItem, product_price: float) -> None:
         if self.status != OrderStatus.PENDING:
-            raise Exception("Order already confirmed, you can't add items to it!")
+            raise OrderError("Order already confirmed, you can't add items to it!")
 
         old_item = next((item for item in self.order_items if item.product_id == order_item.product_id), None)
         if old_item:
@@ -46,11 +47,11 @@ class Order:
             self.order_items.append(order_item)
             self.order_total = self.order_total + (order_item.product_quantity * product_price)
         else:
-            raise Exception("Item not found")
+            raise OrderItemError("Item not found")
 
     def remove_order_item(self, order_item: OrderItem, product_price: float) -> None:
         if self.status != OrderStatus.PENDING:
-            raise Exception("Order already confirmed, you can't remove items from it!")
+            raise OrderError("Order already confirmed, you can't remove items from it!")
 
         self.order_total = self.order_total - (order_item.product_quantity * product_price)
         self.order_items.remove(order_item)

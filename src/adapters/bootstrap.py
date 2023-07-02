@@ -1,8 +1,7 @@
 from kink import di
 
-from src.adapters.repositories.order.order_orm import Orders
+from src.adapters.repositories.order.order_orm import Orders, Order_Items
 from src.adapters.repositories.order.postgres_order_repository import PostgresDBOrderRepository
-from src.adapters.repositories.order_items.order_item_orm import Order_Items
 from src.adapters.repositories.product.postgres_product_repository import PostgresDBProductRepository
 from src.adapters.repositories.product.product_orm import Products
 from src.adapters.services.customer_service import CustomerService

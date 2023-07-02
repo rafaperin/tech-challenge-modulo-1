@@ -13,6 +13,12 @@ class ProductError(DomainError):
         return cls("Provided category is not valid!")
 
 
+class OrderError(DomainError):
+    @classmethod
+    def invalid_category(cls) -> "OrderError":
+        return cls("Provided order is not valid!")
+
+
 class OrderItemError(DomainError):
     @classmethod
     def invalid_category(cls) -> "OrderItemError":

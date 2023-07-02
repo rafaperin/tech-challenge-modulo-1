@@ -1,9 +1,8 @@
 import uuid
-from typing import List
 
 from kink import inject
 
-from src.domain.model.order_items.order_item_model import OrderItem
+from src.domain.model.order.order_item_model import OrderItem
 from src.domain.model.order.order_schemas import CreateOrderDTO, CreateOrderItemDTO, UpdateOrderItemDTO
 
 from src.domain.model.order.order_model import Order, order_factory
@@ -83,9 +82,13 @@ class OrderService(OrderServiceInterface, ProductServiceInterface):
     def remove_order(self, order_id: uuid.UUID) -> None:
         self._order_repo.remove_order(order_id)
 
-    def remove_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> None:
+    def remove_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> Order:
         order = self._order_repo.get_by_id(order_id)
-        item = OrderItem.create(order_id, input_dto.product_id, input_dto.product_quantity)
-        product = self._product_repo.get_by_id(input_dto.product_id)
+        item = self._order_repo.get_order_item(order_id, product_id)
+        product = self._product_repo.get_by_id(product_id)
+
+        order.remove_order_item(item, product.price)
 
         self._order_repo.remove_order_item(order_id, product_id)
+        updated_order = self._order_repo.update(order_id, order)
+        return updated_order

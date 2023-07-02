@@ -105,9 +105,7 @@ async def confirm_order(
     order_id: uuid.UUID,
     service: OrderService = Depends(lambda: di[OrderService]),
 ) -> dict:
-    order_items = service.get_all_from_order(order_id)
-    order = service.update_order_total(order_id, order_items)
-    result = service.confirm_order(order.order_id)
+    result = service.confirm_order(order_id)
     return {"result": result}
 
 
@@ -122,13 +120,12 @@ async def remove_order(
     order_id: uuid.UUID,
     service: OrderService = Depends(lambda: di[OrderService]),
 ) -> dict:
-    service.remove_all_items_from_order(order_id)
-    service.remove(order_id)
+    service.remove_order(order_id)
     return {"result": "Order removed successfully"}
 
 
 @router.delete(
-    "/orders/{order_id}/items/", tags=["Order Items"],
+    "/orders/{order_id}/items", tags=["Order Items"],
     status_code=status.HTTP_200_OK,
     responses={400: {"model": APIErrorMessage},
                404: {"model": APIErrorMessage},
@@ -138,5 +135,5 @@ async def remove_order_item(
     request: RemoveOrderItemDTO,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    service.remove_single_item_from_order(request.order_id, request.product_id)
+    service.remove_order_item(request.order_id, request.product_id)
     return {"result": "Order item removed successfully"}

@@ -3,6 +3,7 @@ from abc import ABC
 
 from src.domain.model.order.order_schemas import CreateOrderDTO, CreateOrderItemDTO
 from src.domain.model.order.order_model import Order
+from src.domain.model.order.order_item_model import OrderItem
 from src.domain.ports.repositories.order_repository import IOrderRepository
 
 
@@ -17,6 +18,9 @@ class OrderServiceInterface(ABC):
         pass
 
     def create_order(self, input_dto: CreateOrderDTO) -> Order:
+        pass
+
+    def get_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> OrderItem:
         pass
 
     def add_item(self, order_id: uuid.UUID, input_dto: CreateOrderItemDTO) -> Order:

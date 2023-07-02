@@ -3,12 +3,16 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from src.domain.model.order.order_model import Order
-from src.domain.model.order_items.order_item_model import OrderItem
+from src.domain.model.order.order_item_model import OrderItem
 
 
 class IOrderRepository(ABC):
     @abstractmethod
     def get_by_id(self, order_id: uuid.UUID) -> Order:
+        pass
+
+    @abstractmethod
+    def get_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> OrderItem:
         pass
 
     @abstractmethod
