@@ -1,8 +1,8 @@
 import uuid
 from abc import ABC
 
-from src.domain.model.product_schemas import CreateProductDTO, ChangeProductDTO
-from src.domain.model.product_model import Product
+from src.domain.model.product.product_schemas import CreateProductDTO, ChangeProductDTO
+from src.domain.model.product.product_model import Product
 from src.domain.ports.repositories.product_repository import IProductRepository
 
 

@@ -2,7 +2,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.domain.model.customer_model import Customer
+from src.domain.model.customer.customer_model import Customer
 
 
 class ICustomerRepository(ABC):

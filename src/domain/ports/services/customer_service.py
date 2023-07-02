@@ -1,8 +1,8 @@
 import uuid
 from abc import ABC
 
-from src.domain.model.customer_schemas import CreateCustomerDTO, ChangeCustomerDTO
-from src.domain.model.customer_model import Customer
+from src.domain.model.customer.customer_schemas import CreateCustomerDTO, ChangeCustomerDTO
+from src.domain.model.customer.customer_model import Customer
 from src.domain.ports.repositories.customer_repository import ICustomerRepository
 
 
@@ -11,9 +11,6 @@ class CustomerServiceInterface(ABC):
         raise NotImplementedError
 
     def get_by_id(self, customer_id: uuid.UUID):
-        pass
-
-    def get_by_cpf(self, cpf: str):
         pass
 
     def get_all(self):

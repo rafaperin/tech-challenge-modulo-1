@@ -2,7 +2,7 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.domain.model.product_model import Product
+from src.domain.model.product.product_model import Product
 
 
 class IProductRepository(ABC):

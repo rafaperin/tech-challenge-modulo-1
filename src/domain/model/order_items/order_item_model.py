@@ -21,9 +21,6 @@ class OrderItem:
 
         return cls(order_id, product_id, product_quantity)
 
-    def change_product_quantity(self, new_quantity) -> None:
-        self.product_quantity = new_quantity
 
-
-def customer_factory(order_id: uuid.UUID, product_id: uuid.UUID, product_quantity: int) -> OrderItem:
+def order_item_factory(order_id: uuid.UUID, product_id: uuid.UUID, product_quantity: int) -> OrderItem:
     return OrderItem(order_id=order_id, product_id=product_id, product_quantity=product_quantity)

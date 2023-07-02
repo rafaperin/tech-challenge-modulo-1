@@ -1,19 +1,24 @@
 import datetime
 import uuid
 from dataclasses import dataclass
+from typing import List
+
+from src.domain.model.order_items.order_item_model import OrderItem
+
 
 class OrderStatus:
-    PENDING = "pendente"
-    CONFIRMED = "confirmado"
-    IN_PROGRESS = "em preparo"
-    READY = "pronto"
-    FINALIZED = "finalizado"
+    PENDING = "Pendente"
+    CONFIRMED = "Confirmado"
+    IN_PROGRESS = "Em preparo"
+    READY = "Pronto"
+    FINALIZED = "Finalizado"
 
 
 @dataclass
 class Order:
     order_id: uuid.UUID
     customer_id: uuid.UUID
+    order_items: List[OrderItem]
     creation_date: datetime.datetime
     order_total: float
     status: str
@@ -21,16 +26,34 @@ class Order:
     @classmethod
     def create_new_order(cls, customer_id: uuid.UUID) -> "Order":
         order_id = uuid.uuid4()
-        return cls(order_id, customer_id, datetime.datetime.utcnow(), 0.0, OrderStatus.PENDING)
+        return cls(order_id, customer_id, list(), datetime.datetime.utcnow(), 0.0, OrderStatus.PENDING)
 
-    def calculate_order_total(self, order_items: list) -> float:
-        total = 0.0
-        for item in order_items:
-            total += item.product_quantity * item.product_price
-        return total
+    def add_order_item(self, order_item: OrderItem, product_price: float) -> None:
+        if self.status != OrderStatus.PENDING:
+            raise Exception("Order already confirmed, you can't add items to it!")
 
-    def update_order_total(self, new_total: float) -> None:
-        self.order_total = new_total
+        self.order_items.append(order_item)
+        self.order_total = self.order_total + (order_item.product_quantity * product_price)
+
+    def update_item_quantity(self, order_item: OrderItem, product_price: float) -> None:
+        if self.status != OrderStatus.PENDING:
+            raise Exception("Order already confirmed, you can't add items to it!")
+
+        old_item = next((item for item in self.order_items if item.product_id == order_item.product_id), None)
+        if old_item:
+            self.order_total = self.order_total - (old_item.product_quantity * product_price)
+
+            self.order_items.append(order_item)
+            self.order_total = self.order_total + (order_item.product_quantity * product_price)
+        else:
+            raise Exception("Item not found")
+
+    def remove_order_item(self, order_item: OrderItem, product_price: float) -> None:
+        if self.status != OrderStatus.PENDING:
+            raise Exception("Order already confirmed, you can't remove items from it!")
+
+        self.order_total = self.order_total - (order_item.product_quantity * product_price)
+        self.order_items.remove(order_item)
 
     def confirm_order(self) -> None:
         self.status = OrderStatus.CONFIRMED
@@ -39,6 +62,7 @@ class Order:
 def order_factory(
      order_id: uuid.UUID,
      customer_id: uuid.UUID,
+     order_items: List[OrderItem],
      creation_date: datetime.datetime,
      order_total: float,
      status: str
@@ -46,6 +70,7 @@ def order_factory(
     return Order(
         order_id=order_id,
         customer_id=customer_id,
+        order_items=order_items,
         creation_date=creation_date,
         order_total=order_total,
         status=status
