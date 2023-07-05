@@ -7,9 +7,9 @@ services:
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "admin"
       POSTGRES_DB: "postgres"
-      PGDATA: /data/postgres
     volumes:
       - ./create_tables.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -41,3 +41,6 @@ services:
 networks:
   tech-challenge-network:
     external: false
+
+volumes:
+  pgdata:

@@ -63,8 +63,8 @@ class CustomerService(CustomerServiceInterface):
             input_dto.email,
             input_dto.phone,
         )
-        self._customer_repo.create(customer)
-        return customer
+        new_customer = self._customer_repo.create(customer)
+        return new_customer
 
     def update(self, customer_id: uuid.UUID, input_dto: ChangeCustomerDTO) -> Customer:
         customer = self._customer_repo.get_by_id(customer_id)
