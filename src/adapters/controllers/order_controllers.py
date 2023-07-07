@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from kink import di
 
-from src.config.errors import APIErrorMessage
+from src.config.errors import APIErrorMessage, RepositoryError, ResourceNotFound
 from src.adapters.services.order_service import OrderService
 from src.domain.model.order.order_schemas import (
     CreateOrderDTO, OrderDTOResponse, OrderDTOListResponse, CreateOrderItemDTO, UpdateOrderItemDTO, RemoveOrderItemDTO,
@@ -23,7 +23,11 @@ router = APIRouter()
 async def get_all_orders(
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    result = service.get_all()
+    try:
+        result = service.get_all()
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
     return {"result": result}
 
 
@@ -39,7 +43,14 @@ async def get_order_by_id(
     order_id: uuid.UUID,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    result = service.get_by_id(order_id)
+    try:
+        result = service.get_by_id(order_id)
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
+    if not result:
+        raise ResourceNotFound(f"No order with id: {order_id}")
+
     return {"result": result}
 
 
@@ -55,7 +66,11 @@ async def create_order(
     request: CreateOrderDTO,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    result = service.create_order(request)
+    try:
+        result = service.create_order(request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -72,7 +87,11 @@ async def add_order_items(
     order_id: uuid.UUID,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    result = service.create_order_item(order_id, request)
+    try:
+        result = service.create_order_item(order_id, request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -89,7 +108,11 @@ async def change_order_item_quantity(
     request: UpdateOrderItemDTO,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    result = service.update_quantity(order_id, request)
+    try:
+        result = service.update_quantity(order_id, request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -105,7 +128,11 @@ async def confirm_order(
     order_id: uuid.UUID,
     service: OrderService = Depends(lambda: di[OrderService]),
 ) -> dict:
-    result = service.confirm_order(order_id)
+    try:
+        result = service.confirm_order(order_id)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -120,7 +147,11 @@ async def remove_order(
     order_id: uuid.UUID,
     service: OrderService = Depends(lambda: di[OrderService]),
 ) -> dict:
-    service.remove_order(order_id)
+    try:
+        service.remove_order(order_id)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": "Order removed successfully"}
 
 
@@ -135,5 +166,9 @@ async def remove_order_item(
     request: RemoveOrderItemDTO,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
-    service.remove_order_item(request.order_id, request.product_id)
+    try:
+        service.remove_order_item(request.order_id, request.product_id)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": "Order item removed successfully"}

@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from kink import di
 
-from src.config.errors import APIErrorMessage
+from src.config.errors import APIErrorMessage, RepositoryError, ResourceNotFound
 from src.adapters.services.product_service import ProductService
 from src.domain.model.product.product_schemas import (
     ChangeProductDTO,
@@ -26,7 +26,11 @@ router = APIRouter(tags=["Products"])
 async def get_all_products(
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    result = service.get_all()
+    try:
+        result = service.get_all()
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
     return {"result": result}
 
 
@@ -42,7 +46,11 @@ async def get_all_products_by_category(
     product_category: str,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    result = service.get_all_by_category(product_category)
+    try:
+        result = service.get_all_by_category(product_category)
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
     return {"result": result}
 
 
@@ -58,7 +66,14 @@ async def get_product_by_id(
     product_id: uuid.UUID,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    result = service.get_by_id(product_id)
+    try:
+        result = service.get_by_id(product_id)
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
+    if not result:
+        raise ResourceNotFound(f"No product with id: {product_id}")
+
     return {"result": result}
 
 
@@ -74,7 +89,11 @@ async def create_product(
     request: CreateProductDTO,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    result = service.create(request)
+    try:
+        result = service.create(request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -91,7 +110,11 @@ async def change_product_data(
     request: ChangeProductDTO,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    result = service.update(product_id, request)
+    try:
+        result = service.update(product_id, request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -106,6 +129,10 @@ async def remove_product(
     product_id: uuid.UUID,
     service: ProductService = Depends(lambda: di[ProductService])
 ) -> dict:
-    service.remove(product_id)
+    try:
+        service.remove(product_id)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": "Product removed successfully"}
 

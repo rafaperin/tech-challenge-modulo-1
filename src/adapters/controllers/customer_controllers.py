@@ -1,9 +1,9 @@
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from kink import di
 
-from src.config.errors import APIErrorMessage
+from src.config.errors import APIErrorMessage, RepositoryError, ResourceNotFound
 from src.adapters.services.customer_service import CustomerService
 from src.domain.model.customer.customer_schemas import (
     ChangeCustomerDTO, CreateCustomerDTO, CustomerDTOResponse, CustomerDTOListResponse,
@@ -23,7 +23,11 @@ router = APIRouter(tags=["Customers"])
 async def get_all_customers(
     service: CustomerService = Depends(lambda: di[CustomerService])
 ) -> dict:
-    result = service.get_all()
+    try:
+        result = service.get_all()
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
     return {"result": result}
 
 
@@ -39,7 +43,14 @@ async def get_customer_by_cpf(
     cpf: str,
     service: CustomerService = Depends(lambda: di[CustomerService])
 ) -> dict:
-    result = service.get_by_cpf(cpf)
+    try:
+        result = service.get_by_cpf(cpf)
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
+    if not result:
+        raise ResourceNotFound(f"No customer with cpf: {cpf}")
+
     return {"result": result}
 
 
@@ -55,7 +66,14 @@ async def get_customer_by_id(
     customer_id: uuid.UUID,
     service: CustomerService = Depends(lambda: di[CustomerService])
 ) -> dict:
-    result = service.get_by_id(customer_id)
+    try:
+        result = service.get_by_id(customer_id)
+    except Exception:
+        raise RepositoryError.get_operation_failed()
+
+    if not result:
+        raise ResourceNotFound(f"No customer with id: {customer_id}")
+
     return {"result": result}
 
 
@@ -71,7 +89,11 @@ async def create_customer(
     request: CreateCustomerDTO,
     service: CustomerService = Depends(lambda: di[CustomerService])
 ) -> dict:
-    result = service.create(request)
+    try:
+        result = service.create(request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -88,7 +110,11 @@ async def change_customer_data(
     request: ChangeCustomerDTO,
     service: CustomerService = Depends(lambda: di[CustomerService])
 ) -> dict:
-    result = service.update(customer_id, request)
+    try:
+        result = service.update(customer_id, request)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": result}
 
 
@@ -103,6 +129,10 @@ async def remove_customer(
     customer_id: uuid.UUID,
     service: CustomerService = Depends(lambda: di[CustomerService])
 ) -> dict:
-    service.remove(customer_id)
+    try:
+        service.remove(customer_id)
+    except Exception:
+        raise RepositoryError.save_operation_failed()
+
     return {"result": "Customer removed successfully"}
 

@@ -18,14 +18,30 @@ create table if not exists products (
 
 create table if not exists orders (
 	order_id uuid primary key,
-	customer_id uuid not null,
+	customer_id uuid references customers(customer_id),
     creation_date timestamp default now(),
     order_total decimal(7,2),
     status varchar(20) not null
 );
 
 create table if not exists order_items (
-	order_id uuid not null,
-	product_id uuid not null,
+	id serial primary key,
+	order_id uuid references orders(order_id) on delete cascade,
+	product_id uuid references products(product_id on delete cascade,
 	product_quantity integer not null
 );
+
+alter table orders
+add constraint constraint_customer_id
+foreign key (customer_id)
+references customers (customer_id)
+
+alter table order_items
+add constraint constraint_order_id
+foreign key (order_id)
+references orders (order_id)
+
+alter table order_items
+add constraint constraint_product_id
+foreign key (product_id)
+references products (product_id)
