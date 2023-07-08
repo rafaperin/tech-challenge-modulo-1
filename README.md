@@ -1,8 +1,3 @@
-Clonar repo e executar o comando abaixo:
-```docker compose up -d```
-
-Variáveis de ambiente hardocoded no arquivo docker-compose.yml para simplicidade de execução
-
 # Tech Challenge
 
 Projeto criado para o módulo 1 do curso de Software Architecture da FIAP
