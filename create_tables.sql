@@ -27,21 +27,21 @@ create table if not exists orders (
 create table if not exists order_items (
 	id serial primary key,
 	order_id uuid references orders(order_id) on delete cascade,
-	product_id uuid references products(product_id on delete cascade,
+	product_id uuid references products(product_id) on delete cascade,
 	product_quantity integer not null
 );
 
 alter table orders
 add constraint constraint_customer_id
 foreign key (customer_id)
-references customers (customer_id)
+references customers (customer_id);
 
 alter table order_items
 add constraint constraint_order_id
 foreign key (order_id)
-references orders (order_id)
+references orders (order_id);
 
 alter table order_items
 add constraint constraint_product_id
 foreign key (product_id)
-references products (product_id)
+references products (product_id);

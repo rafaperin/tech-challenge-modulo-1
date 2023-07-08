@@ -68,11 +68,10 @@ async def get_product_by_id(
 ) -> dict:
     try:
         result = service.get_by_id(product_id)
+    except AttributeError:
+        raise ResourceNotFound.get_operation_failed(f"No product with id: {product_id}")
     except Exception:
         raise RepositoryError.get_operation_failed()
-
-    if not result:
-        raise ResourceNotFound(f"No product with id: {product_id}")
 
     return {"result": result}
 

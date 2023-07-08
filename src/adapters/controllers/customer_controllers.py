@@ -1,6 +1,7 @@
 import uuid
+from typing import Any
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from kink import di
 
 from src.config.errors import APIErrorMessage, RepositoryError, ResourceNotFound
@@ -42,14 +43,13 @@ async def get_all_customers(
 async def get_customer_by_cpf(
     cpf: str,
     service: CustomerService = Depends(lambda: di[CustomerService])
-) -> dict:
+) -> Any:
     try:
         result = service.get_by_cpf(cpf)
+    except AttributeError:
+        raise ResourceNotFound.get_operation_failed(f"No customer with cpf: {cpf}")
     except Exception:
         raise RepositoryError.get_operation_failed()
-
-    if not result:
-        raise ResourceNotFound(f"No customer with cpf: {cpf}")
 
     return {"result": result}
 
@@ -68,11 +68,10 @@ async def get_customer_by_id(
 ) -> dict:
     try:
         result = service.get_by_id(customer_id)
+    except AttributeError:
+        raise ResourceNotFound.get_operation_failed(f"No customer with id: {customer_id}")
     except Exception:
         raise RepositoryError.get_operation_failed()
-
-    if not result:
-        raise ResourceNotFound(f"No customer with id: {customer_id}")
 
     return {"result": result}
 

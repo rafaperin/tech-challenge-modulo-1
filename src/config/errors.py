@@ -6,7 +6,9 @@ class DomainError(Exception):
 
 
 class ResourceNotFound(DomainError):
-    pass
+    @classmethod
+    def get_operation_failed(cls, e) -> "ResourceNotFound":
+        return cls(e)
 
 
 class RepositoryError(DomainError):

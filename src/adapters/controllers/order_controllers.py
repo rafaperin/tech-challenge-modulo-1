@@ -45,11 +45,10 @@ async def get_order_by_id(
 ) -> dict:
     try:
         result = service.get_by_id(order_id)
+    except AttributeError:
+        raise ResourceNotFound.get_operation_failed(f"No order with id: {order_id}")
     except Exception:
         raise RepositoryError.get_operation_failed()
-
-    if not result:
-        raise ResourceNotFound(f"No order with id: {order_id}")
 
     return {"result": result}
 
