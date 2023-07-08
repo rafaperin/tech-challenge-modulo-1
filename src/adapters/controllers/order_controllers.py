@@ -3,8 +3,9 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from kink import di
 
-from src.config.errors import APIErrorMessage, RepositoryError, ResourceNotFound
+from src.config.errors import APIErrorMessage, RepositoryError, ResourceNotFound, DomainError
 from src.adapters.services.order_service import OrderService
+from src.domain.model.errors import OrderItemError
 from src.domain.model.order.order_schemas import (
     CreateOrderDTO, OrderDTOResponse, OrderDTOListResponse, CreateOrderItemDTO, UpdateOrderItemDTO, RemoveOrderItemDTO,
 )
@@ -45,7 +46,7 @@ async def get_order_by_id(
 ) -> dict:
     try:
         result = service.get_by_id(order_id)
-    except AttributeError:
+    except ResourceNotFound:
         raise ResourceNotFound.get_operation_failed(f"No order with id: {order_id}")
     except Exception:
         raise RepositoryError.get_operation_failed()
@@ -88,7 +89,10 @@ async def add_order_items(
 ) -> dict:
     try:
         result = service.create_order_item(order_id, request)
-    except Exception:
+    except DomainError:
+        raise OrderItemError.modification_blocked()
+    except Exception as e:
+        print(e)
         raise RepositoryError.save_operation_failed()
 
     return {"result": result}
@@ -109,6 +113,8 @@ async def change_order_item_quantity(
 ) -> dict:
     try:
         result = service.update_quantity(order_id, request)
+    except DomainError:
+        raise OrderItemError.modification_blocked()
     except Exception:
         raise RepositoryError.save_operation_failed()
 
@@ -148,6 +154,8 @@ async def remove_order(
 ) -> dict:
     try:
         service.remove_order(order_id)
+    except DomainError:
+        raise OrderItemError.modification_blocked()
     except Exception:
         raise RepositoryError.save_operation_failed()
 
@@ -162,11 +170,14 @@ async def remove_order(
                500: {"model": APIErrorMessage}}
 )
 async def remove_order_item(
+    order_id: uuid.UUID,
     request: RemoveOrderItemDTO,
     service: OrderService = Depends(lambda: di[OrderService])
 ) -> dict:
     try:
-        service.remove_order_item(request.order_id, request.product_id)
+        service.remove_order_item(order_id, request.product_id)
+    except DomainError:
+        raise OrderItemError.modification_blocked()
     except Exception:
         raise RepositoryError.save_operation_failed()
 

@@ -2,6 +2,7 @@ import uuid
 
 from kink import inject
 
+from src.config.errors import ResourceNotFound
 from src.domain.model.order.order_item_model import OrderItem
 from src.domain.model.order.order_schemas import CreateOrderDTO, CreateOrderItemDTO, UpdateOrderItemDTO
 
@@ -21,14 +22,17 @@ class OrderService(OrderServiceInterface, ProductServiceInterface):
     def get_by_id(self, order_id: uuid.UUID):
         result = self._order_repo.get_by_id(order_id)
 
-        order = order_factory(
-            result.order_id,
-            result.customer_id,
-            result.order_items,
-            result.creation_date,
-            result.order_total,
-            result.status,
-        )
+        if not result:
+            raise ResourceNotFound
+        else:
+            order = order_factory(
+                result.order_id,
+                result.customer_id,
+                result.order_items,
+                result.creation_date,
+                result.order_total,
+                result.status,
+            )
         return order
 
     def get_all(self):
@@ -51,17 +55,6 @@ class OrderService(OrderServiceInterface, ProductServiceInterface):
         self._order_repo.create_order(order)
         return order
 
-    def create_order_item(self, order_id: uuid.UUID, input_dto: CreateOrderItemDTO) -> Order:
-        order = self._order_repo.get_by_id(order_id)
-        item = OrderItem.create(order_id, input_dto.product_id, input_dto.product_quantity)
-        product = self._product_repo.get_by_id(input_dto.product_id)
-
-        order.add_order_item(item, product.price)
-
-        self._order_repo.create_order_item(item)
-        self._order_repo.update(order_id, order)
-        return order
-
     def update_quantity(self, order_id: uuid.UUID, input_dto: UpdateOrderItemDTO) -> Order:
         order = self._order_repo.get_by_id(order_id)
         item = OrderItem.create(order_id, input_dto.product_id, input_dto.product_quantity)
@@ -73,6 +66,26 @@ class OrderService(OrderServiceInterface, ProductServiceInterface):
         updated_order = self._order_repo.update(order_id, order)
         return updated_order
 
+    def create_order_item(self, order_id: uuid.UUID, input_dto: CreateOrderItemDTO) -> Order:
+        item = self._order_repo.get_order_item(order_id, input_dto.product_id)
+        if item:
+            update_dto = UpdateOrderItemDTO(
+                order_id=order_id,
+                product_id=input_dto.product_id,
+                product_quantity=input_dto.product_quantity + item.product_quantity
+            )
+            return self.update_quantity(order_id, update_dto)
+
+        order = self._order_repo.get_by_id(order_id)
+        item = OrderItem.create(order_id, input_dto.product_id, input_dto.product_quantity)
+        product = self._product_repo.get_by_id(input_dto.product_id)
+
+        order.add_order_item(item, product.price)
+
+        self._order_repo.create_order_item(item)
+        self._order_repo.update(order_id, order)
+        return order
+
     def confirm_order(self, order_id: uuid.UUID) -> Order:
         order = self._order_repo.get_by_id(order_id)
         order.confirm_order()
@@ -80,6 +93,8 @@ class OrderService(OrderServiceInterface, ProductServiceInterface):
         return updated_order
 
     def remove_order(self, order_id: uuid.UUID) -> None:
+        order = self._order_repo.get_by_id(order_id)
+        order.check_if_pending()
         self._order_repo.remove_order(order_id)
 
     def remove_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> Order:

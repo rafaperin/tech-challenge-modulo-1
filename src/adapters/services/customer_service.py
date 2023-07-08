@@ -2,6 +2,7 @@ import uuid
 
 from kink import inject
 
+from src.config.errors import ResourceNotFound
 from src.domain.model.customer.customer_schemas import (
     ChangeCustomerDTO,
     CreateCustomerDTO,
@@ -18,27 +19,33 @@ class CustomerService(CustomerServiceInterface):
 
     def get_by_id(self, customer_id: uuid.UUID):
         result = self._customer_repo.get_by_id(customer_id)
-        customer = customer_factory(
-            result.customer_id,
-            result.cpf,
-            result.first_name,
-            result.last_name,
-            result.email,
-            result.phone,
-        )
+        if not result:
+            raise ResourceNotFound
+        else:
+            customer = customer_factory(
+                result.customer_id,
+                result.cpf,
+                result.first_name,
+                result.last_name,
+                result.email,
+                result.phone,
+            )
         return customer
 
     def get_by_cpf(self, cpf: str):
         result = self._customer_repo.get_by_cpf(cpf)
-        customer = customer_factory(
-            result.customer_id,
-            result.cpf,
-            result.first_name,
-            result.last_name,
-            result.email,
-            result.phone,
-        )
-        return customer
+        print(result)
+        if not result:
+            raise ResourceNotFound
+        else:
+            return customer_factory(
+                result.customer_id,
+                result.cpf,
+                result.first_name,
+                result.last_name,
+                result.email,
+                result.phone,
+            )
 
     def get_all(self):
         result = self._customer_repo.get_all()

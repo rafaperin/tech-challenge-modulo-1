@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from src.config.config import settings
 from src.adapters.repositories.product.product_orm import Products
+from src.config.errors import ResourceNotFound
 from src.domain.model.product.product_model import Product, product_factory
 from src.domain.ports.repositories.product_repository import IProductRepository
 
@@ -36,8 +37,10 @@ class PostgresDBProductRepository(IProductRepository):
     def get_by_id(self, product_id: uuid.UUID) -> Optional[Product]:
         with SessionLocal() as db:
             result = db.query(self.model).filter(self.model.product_id == product_id).first()
-        product = self.to_entity(result)
-        return product
+        if result:
+            return self.to_entity(result)
+        else:
+            return None
 
     def get_all(self) -> List[Product]:
         products = []

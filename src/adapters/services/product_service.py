@@ -2,6 +2,7 @@ import uuid
 
 from kink import inject
 
+from src.config.errors import ResourceNotFound
 from src.domain.model.product.product_schemas import (
     ChangeProductDTO,
     CreateProductDTO,
@@ -18,14 +19,17 @@ class ProductService(ProductServiceInterface):
 
     def get_by_id(self, product_id: uuid.UUID):
         result = self._product_repo.get_by_id(product_id)
-        product = product_factory(
-            result.product_id,
-            result.name,
-            result.description,
-            result.category,
-            result.price,
-            result.image_url,
-        )
+        if not result:
+            raise ResourceNotFound
+        else:
+            product = product_factory(
+                result.product_id,
+                result.name,
+                result.description,
+                result.category,
+                result.price,
+                result.image_url,
+            )
         return product
 
     def get_all(self):
@@ -44,7 +48,7 @@ class ProductService(ProductServiceInterface):
         return products
 
     def get_all_by_category(self, category: str):
-        result = self._product_repo.get_all_by_category(category)
+        result = self._product_repo.get_all_by_category(category.lower().capitalize())
         products = []
         for obj in result:
             product = product_factory(

@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from src.config.config import settings
 from src.adapters.repositories.order.order_orm import Orders, Order_Items
+from src.config.errors import ResourceNotFound
 from src.domain.model.order.order_model import Order, order_factory
 from src.domain.model.order.order_item_model import OrderItem, order_item_factory
 from src.domain.ports.repositories.order_repository import IOrderRepository
@@ -53,17 +54,27 @@ class PostgresDBOrderRepository(IOrderRepository):
         with SessionLocal() as db:
             order_db = db.query(self.model).filter(self.model.order_id == order_id).first()
             items_db = db.query(self.items_model).filter(self.items_model.order_id == order_id).all()
-        items = self.items_to_entity(items_db)
-        result = self.order_to_entity(order_db, items)
-        return result
 
-    def get_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> OrderItem:
+        if items_db:
+            items = self.items_to_entity(items_db)
+        else:
+            items = []
+
+        if order_db:
+            return self.order_to_entity(order_db, items)
+        else:
+            return None
+
+    def get_order_item(self, order_id: uuid.UUID, product_id: uuid.UUID) -> Optional[OrderItem]:
         with SessionLocal() as db:
             item_db = db.query(self.items_model)\
                 .filter(self.items_model.order_id == order_id and
                         self.items_model.product_id == product_id).first()
 
-            return self.item_to_entity(item_db)
+            if item_db:
+                return self.item_to_entity(item_db)
+            else:
+                return None
 
     def get_all(self) -> List[Order]:
         result = []

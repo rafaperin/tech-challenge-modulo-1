@@ -32,10 +32,10 @@ class Product:
         if not price:
             raise ProductError("Product price is required")
 
-        if category not in [c.value for c in Category]:
+        if category.lower() not in [c.value.lower() for c in Category]:
             raise ProductError("Product category is invalid")
 
-        return cls(uuid.uuid4(), name, description, category, price, image_url)
+        return cls(uuid.uuid4(), name, description, category.lower().capitalize(), price, image_url)
 
     def change_product_name(self, new_name: str) -> None:
         self.name = new_name

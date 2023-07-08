@@ -21,8 +21,8 @@ class OrderError(DomainError):
 
 class OrderItemError(DomainError):
     @classmethod
-    def invalid_category(cls) -> "OrderItemError":
-        return cls("Provided order item is not valid!")
+    def modification_blocked(cls) -> "OrderItemError":
+        return cls("Order already confirmed, modification not allowed!")
 
 
 class CustomerNotFound(ResourceNotFound):

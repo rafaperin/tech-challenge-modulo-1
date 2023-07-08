@@ -18,7 +18,7 @@ create table if not exists products (
 
 create table if not exists orders (
 	order_id uuid primary key,
-	customer_id uuid references customers(customer_id),
+	customer_id uuid not null,
     creation_date timestamp default now(),
     order_total decimal(7,2),
     status varchar(20) not null
@@ -27,7 +27,7 @@ create table if not exists orders (
 create table if not exists order_items (
 	id serial primary key,
 	order_id uuid references orders(order_id) on delete cascade,
-	product_id uuid references products(product_id) on delete cascade,
+	product_id uuid not null,
 	product_quantity integer not null
 );
 

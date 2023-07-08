@@ -20,22 +20,38 @@ class OrderItemsDTO(BaseModel):
         }
 
 
-class CreateOrderItemDTO(OrderItemsDTO):
-    ...
+class CreateOrderItemDTO(BaseModel):
+    product_id: uuid.UUID
+    product_quantity: int
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "product_id": "00000000-0000-0000-0000-000000000000",
+                "product_quantity": 1,
+            }
+        }
 
 
-class UpdateOrderItemDTO(OrderItemsDTO):
-    ...
+class UpdateOrderItemDTO(BaseModel):
+    product_id: uuid.UUID
+    product_quantity: int
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "product_id": "00000000-0000-0000-0000-000000000000",
+                "product_quantity": 1,
+            }
+        }
 
 
 class RemoveOrderItemDTO(BaseModel):
-    order_id: uuid.UUID
     product_id: uuid.UUID
 
     class Config:
         schema_extra = {
             "example": {
-                "order_id": "00000000-0000-0000-0000-000000000000",
                 "product_id": "00000000-0000-0000-0000-000000000000",
             }
         }

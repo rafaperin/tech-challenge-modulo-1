@@ -46,7 +46,7 @@ async def get_customer_by_cpf(
 ) -> Any:
     try:
         result = service.get_by_cpf(cpf)
-    except AttributeError:
+    except ResourceNotFound:
         raise ResourceNotFound.get_operation_failed(f"No customer with cpf: {cpf}")
     except Exception:
         raise RepositoryError.get_operation_failed()
@@ -68,7 +68,7 @@ async def get_customer_by_id(
 ) -> dict:
     try:
         result = service.get_by_id(customer_id)
-    except AttributeError:
+    except ResourceNotFound:
         raise ResourceNotFound.get_operation_failed(f"No customer with id: {customer_id}")
     except Exception:
         raise RepositoryError.get_operation_failed()
@@ -130,7 +130,8 @@ async def remove_customer(
 ) -> dict:
     try:
         service.remove(customer_id)
-    except Exception:
+    except Exception as e:
+        print(e)
         raise RepositoryError.save_operation_failed()
 
     return {"result": "Customer removed successfully"}

@@ -37,14 +37,18 @@ class PostgresDBCustomerRepository(ICustomerRepository):
     def get_by_id(self, customer_id: uuid.UUID) -> Optional[Customer]:
         with SessionLocal() as db:
             result = db.query(self.model).filter(self.model.customer_id == customer_id).first()
-        customer = self.to_entity(result)
-        return customer
+        if result:
+            return self.to_entity(result)
+        else:
+            return None
 
     def get_by_cpf(self, cpf: str) -> Optional[Customer]:
         with SessionLocal() as db:
             result = db.query(self.model).filter(self.model.cpf == cpf).first()
-        customer = self.to_entity(result)
-        return customer
+        if result:
+            return self.to_entity(result)
+        else:
+            return None
 
     def get_all(self) -> List[Customer]:
         customers = []
